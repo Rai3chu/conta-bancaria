@@ -16,7 +16,8 @@ public class UsuarioController {
 
     @PostMapping
     public Usuario cadastrarUsuario(@RequestBody Usuario usuario){
-            usuarioService.cadastrarUsuario(usuario);
+
+        usuarioService.cadastrarUsuario(usuario);
         return usuario;
     }
 
