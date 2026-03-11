@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import java.util.List;
+
 @Service
 public class UsuarioService {
     @Autowired
@@ -13,7 +15,11 @@ public class UsuarioService {
 
     @PostMapping
     public Usuario cadastrarUsuario(Usuario usuario) {
+        usuarioRepository.save(usuario);
+        return usuario;
+    }
 
-        return cadastrarUsuario(usuario);
+    public List<Usuario> listarUsuarios() {
+        return usuarioRepository.findAll();
     }
 }
