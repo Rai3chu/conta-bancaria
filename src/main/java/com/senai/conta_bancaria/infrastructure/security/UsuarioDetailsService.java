@@ -1,5 +1,6 @@
 package com.senai.conta_bancaria.infrastructure.security;
 
+import com.senai.conta_bancaria.domain.entity.Usuario;
 import com.senai.conta_bancaria.domain.exception.UsuarioNaoEncontradoException;
 import com.senai.conta_bancaria.domain.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,13 +21,14 @@ public class UsuarioDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        var usuario = repository.findByEmail(email)
-                .orElseThrow(() -> new UsuarioNaoEncontradoException(null));
+        // Agora o 'usuario' é reconhecido como a sua Entidade Usuario
+        Usuario usuario = repository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado: " + email));
 
         return new User(
-                usuario.getEmail(),
-                usuario.getSenha(),
-                List.of(new SimpleGrantedAuthority("ROLE_" + usuario.getRole().name()))
+                usuario.getEmail(),    // 1º parâmetro: String (username/email)
+                usuario.getSenha(),    // 2º parâmetro: String (senha criptografada)
+                List.of(new SimpleGrantedAuthority("ROLE_" + usuario.getRole().name())) // 3º parâmetro: Autoridades
         );
     }
 }

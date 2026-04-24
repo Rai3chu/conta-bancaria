@@ -22,7 +22,7 @@ public class Usuario {
 
     @Enumerated
     @Column(nullable = false)
-    protected Role role;
+    private Role role;
 
 
 }
