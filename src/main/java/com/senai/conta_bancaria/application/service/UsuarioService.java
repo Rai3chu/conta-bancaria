@@ -1,44 +1,61 @@
 package com.senai.conta_bancaria.application.service;
 
+import com.senai.conta_bancaria.application.dto.UsuarioRequestDTO;
+import com.senai.conta_bancaria.application.dto.UsuarioResponseDTO;
 import com.senai.conta_bancaria.domain.entity.Usuario;
+import com.senai.conta_bancaria.domain.exception.UsuarioNaoEncontradoException;
 import com.senai.conta_bancaria.domain.repository.UsuarioRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+
 @Service
 public class UsuarioService {
 
-    private final UsuarioRepository usuarioRepository;
+    @Autowired
+    UsuarioRepository usuarioRepository;
 
-    public UsuarioService(UsuarioRepository usuarioRepository) {
-        this.usuarioRepository = usuarioRepository;
+    public UsuarioResponseDTO cadastrarUsuario(UsuarioRequestDTO usuarioRequestDTO) {
+
+        return UsuarioResponseDTO.fromEntity(
+                usuarioRepository.save(
+                        usuarioRequestDTO.toEntity()
+                )
+        );
     }
 
-    public Usuario cadastrarUsuario(Usuario usuario) {
-        return usuarioRepository.save(usuario);
+    public List<UsuarioResponseDTO> listarUsuarios() {
+        return usuarioRepository.findAll()
+                .stream().map(
+                        UsuarioResponseDTO::fromEntity
+                ).toList();
     }
 
-    public List<Usuario> listarUsuarios() {
-        return usuarioRepository.findAll();
+    public UsuarioResponseDTO buscarUsuarioPorId(Long id) {
+
+        return UsuarioResponseDTO.fromEntity(usuarioRepository.findById(id)
+                .orElseThrow(() -> new UsuarioNaoEncontradoException(id))
+        );
     }
 
-    public Usuario buscarUsuarioPorID(Long id) {
-        return usuarioRepository.findById(id).orElse(null);
-    }
+    public UsuarioResponseDTO atualizarUsuario(Long id, UsuarioRequestDTO usuarioRequestDTO) {
+        Usuario usuarioAtualizado = usuarioRepository.findById(id)
+                .orElseThrow(() -> new UsuarioNaoEncontradoException(id));
 
-    public Usuario atualizarUsuario(Long id, Usuario usuario){
-        Usuario usuarioAtualizado = buscarUsuarioPorID(id);
-        if (usuarioAtualizado != null) {
-            usuarioAtualizado.setNome(usuario.getNome());
-            usuarioAtualizado.setEmail(usuario.getEmail());
-            usuarioAtualizado.setSenha(usuario.getSenha());
-            return usuarioRepository.save(usuarioAtualizado);
-        }
-        return null;
+        usuarioAtualizado.setNome(usuarioRequestDTO.nome());
+        usuarioAtualizado.setEmail(usuarioRequestDTO.email());
+        usuarioAtualizado.setSenha(usuarioRequestDTO.senha());
+
+        return UsuarioResponseDTO.fromEntity(usuarioRepository.save(usuarioAtualizado));
     }
 
     public void deletarUsuario(Long id) {
+
+        if(!usuarioRepository.existsById(id)){
+            throw new UsuarioNaoEncontradoException(id);
+        }
         usuarioRepository.deleteById(id);
     }
 }
