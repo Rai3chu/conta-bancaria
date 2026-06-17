@@ -1,19 +1,17 @@
 package com.senai.conta_bancaria.application.service;
 
-import com.senai.conta_bancaria.application.dto.ContaRequestDTO;
-import com.senai.conta_bancaria.application.dto.ContaResponseDTO;
-import com.senai.conta_bancaria.application.dto.DepositoDTO;
-import com.senai.conta_bancaria.application.dto.SaqueDTO;
+import com.senai.conta_bancaria.application.dto.*;
 import com.senai.conta_bancaria.domain.entity.Conta;
 import com.senai.conta_bancaria.domain.exception.UsuarioNaoEncontradoException;
 import com.senai.conta_bancaria.domain.repository.ContaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import com.senai.conta_bancaria.domain.exception.ContaNaoEncontradaException;
 
 import java.util.List;
 
 @Service
-public class ContaService {
+public class    ContaService {
     @Autowired
     ContaRepository contaRepository;
 
@@ -60,42 +58,35 @@ public class ContaService {
         contaRepository.deleteById(id);
     }
 
-    public ContaResponseDTO sacar(SaqueDTO saqueDTO) {
+    public Conta depositarConta(Long id, DepositoRequestDTO depositoRequestDTO){
+        Conta conta = contaRepository.findById(id)
+                .orElseThrow(() -> new ContaNaoEncontradaException(id));
 
-        Conta conta = contaRepository.findById(saqueDTO.contaId())
-                .orElseThrow(() -> new UsuarioNaoEncontradoException(saqueDTO.contaId()));
+        conta.depositar(depositoRequestDTO.valorDepositado());
+        return contaRepository.save(conta);
 
-        if (!conta.isAtivo()) {
-            throw new RuntimeException("Conta inativa");
-        }
-
-
-        if (saqueDTO.valor() <= 0) {
-            throw new RuntimeException("Valor inválido para saque");
-        }
-
-        if (conta.getSaldo() < saqueDTO.valor()) {
-            throw new RuntimeException("Saldo insuficiente");
-        }
-
-        conta.setSaldo(conta.getSaldo() - saqueDTO.valor());
-
-        return ContaResponseDTO.fromEntity(contaRepository.save(conta));
     }
 
-    public ContaResponseDTO deposito(DepositoDTO depositoDTO){
-        Conta conta = contaRepository.findById((depositoDTO.contaId()))
-                .orElseThrow(() -> new UsuarioNaoEncontradoException(depositoDTO.contaId()));
+    public Conta sacarConta(Long id, SacarRequestDTO sacarRequestDTO) {
+        Conta conta = contaRepository.findById(id)
+                .orElseThrow(() -> new ContaNaoEncontradaException(id));
 
-        if (!conta.isAtivo()){
-            throw  new RuntimeException("Conta não está ativa mano");
-        }
-        if (conta.getSaldo() < depositoDTO.valor()){
-            throw  new RuntimeException("Saldo insuficiente");
-        }
-        conta.setSaldo(conta.getSaldo() + depositoDTO.valor());
+        conta.sacar(sacarRequestDTO.valorSacado());
+        return contaRepository.save(conta);
+    }
 
-        return ContaResponseDTO.fromEntity(contaRepository.save(conta));
 
+
+
+    public Conta transferirConta(Long idContaOrigem, TransferirRequestDTO transferirRequestDTO, Long idContaDestino) {
+        Conta contaOrigem = contaRepository.findById(idContaOrigem)
+                .orElseThrow(() -> new ContaNaoEncontrada(idContaOrigem));
+
+        Conta contaDestino = contaRepository.findById(idContaDestino)
+                .orElseThrow(() -> new ContaNaoEncontrada(idContaDestino));
+
+        contaOrigem.transferir(contaDestino, transferirRequestDTO.valorTransferir());
+        contaRepository.save(contaDestino);
+        return contaRepository.save(contaOrigem);
     }
 }

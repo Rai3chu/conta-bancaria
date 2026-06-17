@@ -1,6 +1,4 @@
-package com.senai.conta_bancaria.interface_ui.controller;
-
-
+package com.senai.conta_bancaria.interface_ui.controller; //
 import com.senai.conta_bancaria.application.dto.UsuarioRequestDTO;
 import com.senai.conta_bancaria.application.dto.UsuarioResponseDTO;
 import com.senai.conta_bancaria.application.service.UsuarioService;
@@ -21,14 +19,12 @@ import java.net.URI;
 import java.util.List;
 
 
-
 @Tag(name = "Usuarios", description = "Cadastro de Usuários")
 @RestController
 @RequestMapping("/usuario")
 public class UsuarioController {
     @Autowired
     UsuarioService usuarioService;
-
 
     @Operation(
             summary = "Cadastrar um novo Usuário",

@@ -25,7 +25,7 @@ public record ContaRequestDTO(
                 .numero(this.numero)
                 .saldo(this.saldo)
                 .tipo(this.tipo)
-                .ativo(true)
+                .ativo(true) //não permite que a conta esteja inativa ao criar-lá
                 .build();
     }
 

@@ -24,5 +24,23 @@ public class Conta {
     @JoinColumn(name = "usuario_id")
     private Usuario usuario;
 
+    public void depositar(Long valorDepositado) {
+        if (valorDepositado > 0) {
+            this.saldo += valorDepositado;
+        }
+    }
+
+    public void sacar(Long valorSacado) {
+        if (valorSacado > 0 && valorSacado <= saldo) {
+            this.saldo -= valorSacado;
+        }
+    }
+
+    public void transferir(Conta contaDestino, Long valorTransferir) {
+        if (valorTransferir > 0) {
+            this.saldo -= valorTransferir;
+        }
+    }
+
 
 }

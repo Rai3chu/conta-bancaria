@@ -20,9 +20,8 @@ public class Usuario {
     private String cpf;
     private boolean ativo = true;
 
-    @Enumerated
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
-
 
 }
